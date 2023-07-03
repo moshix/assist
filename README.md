@@ -10,7 +10,7 @@ This an excellent learning tool for mainframe assembler.
 I am providing this repo for software preservation purposes. The rights were owned by defunct BDM Software LLC .
 
 
-![ScreenShot](/Screen%20Shot%202023-07-04%20at%2012.44.04%20AM.pngraw=true "Assist Assembler")
+![ScreenShot](/Screen%20Shot%202023-07-04%20at%2012.44.04%20AM.png?raw=true "Assist Assembler")
 
 July 2023, Milan/Italy
 
