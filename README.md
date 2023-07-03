@@ -1,5 +1,5 @@
-# Assist S/360 Assembler for MS-DOS
-====================================
+# Assist S/360 Assembler for MS-DOS v2.03
+=============================================
 
 This is the assist assembler for MS-DOS which compiles S/360 BAL assembler into object code. It also has its own S/360 instructions emulator. 
 
