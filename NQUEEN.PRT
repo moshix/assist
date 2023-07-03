@@ -1,0 +1,187 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                             
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                      1 *        N-QUEENS PROBLEM          04/09/2015
+000000                                2 NQUEENS  CSECT
+                                      3          SAVE   (14,12)            save registers on entry
+                                                 $                                                                                  
+                                        Error # 118, INVALID OP-CODE
+000000 05C0                           4          BALR   R12,0              establish addressability
+000002                                5          USING  *,R12              set base register
+000002 50D0 C17E            00180     6          ST     R13,SAVEA+4        link mySA->prevSA
+000006 41B0 C17A            0017C     7          LA     R11,SAVEA          mySA
+00000A 50BD 0008            00008     8          ST     R11,8(R13)         link prevSA->mySA
+00000E 18DB                           9          LR     R13,R11            set mySA pointer
+000010 4170 000E            0000E    10          LA     R7,LL              l
+000014 4160 0001            00001    11          LA     R6,1               i=1
+000018 1816                          12 LOOPI    LR     R1,R6              do i=1 to l
+00001A 8B10 0001            00001    13          SLA    R1,1               i*2
+00001E 4061 C1C2            001C4    14          STH    R6,A-2(R1)         a(i)=i
+000022 4166 0001            00001    15          LA     R6,1(R6)           i=i+1
+000026 4670 C016            00018    16          BCT    R7,LOOPI           loop do i
+                                     17 OPENEM   OPEN   (OUTDCB,OUTPUT)    open the printer file
+                                                 $                                                                                  
+                                        Error # 118, INVALID OP-CODE
+00002A 4190 0001            00001    18          LA     R9,1               n=1 start of loop
+00002E 4990 C1C2            001C4    19 LOOPN    CH     R9,L               do n=1 to l
+000032 F5F5 F5F5            06FFB    20          BH     ELOOPN             if n>l then exit loop
+                                                        $                                                                           
+                                        Error # 100, ADDRESSABILITY ERROR
+                                                        $                                                                           
+                                        Error # 100, ADDRESSABILITY ERROR
+000036 1B88                          21          SR     R8,R8              m=0
+000038 41A0 0001            00001    22          LA     R10,1              i=1
+00003C 1859                          23          LR     R5,R9              n
+00003E 8B50 0001            00001    24          SLA    R5,1               n*2
+000042 0650                          25          BCTR   R5,0               r=2*n-1
+000044 19A9                          26 E40      CR     R10,R9             if i>n
+000046 4720 C112            00114    27          BH     E80                then goto e80
+00004A 18BA                          28          LR     R11,R10            j=i
+00004C 181A                          29 E50      LR     R1,R10             i
+00004E 8B10 0001            00001    30          SLA    R1,1               i*2
+000052 4161 C1C2            001C4    31          LA     R6,A-2(R1)         r6=@a(i)
+000056 181B                          32          LR     R1,R11             j
+000058 8B10 0001            00001    33          SLA    R1,1               j*2
+00005C 4171 C1C2            001C4    34          LA     R7,A-2(R1)         r7=@a(j)
+000060 D201 C1FC 6000 001FE 00000    35          MVC    Z,0(R6)            z=a(i)
+000066 D201 C1FE 7000 00200 00000    36          MVC    Y,0(R7)            y=a(j)
+00006C 183A                          37          LR     R3,R10             i
+00006E 4B30 C1FE            00200    38          SH     R3,Y               -y
+000072 1A39                          39          AR     R3,R9              p=i-y+n
+000074 184A                          40          LR     R4,R10             i
+000076 4A40 C1FE            00200    41          AH     R4,Y               +y
+00007A 0640                          42          BCTR   R4,0               q=i+y-1
+00007C D201 6000 C1FE 00000 00200    43          MVC    0(2,R6),Y          a(i)=y
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000082 D201 7000 C1FC 00000 001FE    44          MVC    0(2,R7),Z          a(j)=z
+000088 1813                          45          LR     R1,R3              p
+00008A 8B10 0001            00001    46          SLA    R1,1               p*2
+00008E 4821 C216            00218    47          LH     R2,U-2(R1)         u(p)
+000092 1222                          48          LTR    R2,R2              if u(p)<>0
+000094 4770 C0D6            000D8    49          BNE    E60                then goto e60
+000098 1814                          50          LR     R1,R4              q
+00009A 1A15                          51          AR     R1,R5              q+r
+00009C 8B10 0001            00001    52          SLA    R1,1               (q+r)*2
+0000A0 4821 C216            00218    53          LH     R2,U-2(R1)         u(q+r)
+0000A4 5920 C176            00178    54          C      R2,=F'0'           if u(q+r)<>0
+0000A8 4770 C0D6            000D8    55          BNE    E60                then goto e60
+0000AC 181A                          56          LR     R1,R10             i
+0000AE 8B10 0001            00001    57          SLA    R1,1               i*2
+0000B2 40B1 C1DE            001E0    58          STH    R11,S-2(R1)        s(i)=j
+0000B6 4100 0001            00001    59          LA     R0,1               r0=1
+0000BA 1813                          60          LR     R1,R3              p
+0000BC 8B10 0001            00001    61          SLA    R1,1               p*2
+0000C0 4001 C216            00218    62          STH    R0,U-2(R1)         u(p)=1
+0000C4 1814                          63          LR     R1,R4              q
+0000C6 1A15                          64          AR     R1,R5              q+r
+0000C8 8B10 0001            00001    65          SLA    R1,1               (q+r)*2
+0000CC 4001 C216            00218    66          STH    R0,U-2(R1)         u(q+r)=1
+0000D0 41AA 0001            00001    67          LA     R10,1(R10)         i=i+1
+0000D4 47F0 C042            00044    68          B      E40                goto e40
+0000D8 41BB 0001            00001    69 E60      LA     R11,1(R11)         j=j+1
+0000DC 19B9                          70          CR     R11,R9             if j<=n
+0000DE 47D0 C04A            0004C    71          BNH    E50                then goto e50
+0000E2 06B0                          72 E70      BCTR   R11,0              j=j-1
+0000E4 19BA                          73          CR     R11,R10            if j=i
+0000E6 4780 C116            00118    74          BE     E90                goto e90
+0000EA 181A                          75          LR     R1,R10             i
+0000EC 8B10 0001            00001    76          SLA    R1,1               i*2
+0000F0 4161 C1C2            001C4    77          LA     R6,A-2(R1)         r6=@a(i)
+0000F4 181B                          78          LR     R1,R11             j
+0000F6 8B10 0001            00001    79          SLA    R1,1               j*2
+0000FA 4171 C1C2            001C4    80          LA     R7,A-2(R1)         r7=@a(j)
+0000FE D201 C1FC 6000 001FE 00000    81          MVC    Z,0(R6)            z=a(i)
+000104 D201 6000 7000 00000 00000    82          MVC    0(2,R6),0(R7)      a(i)=a(j)
+00010A D201 7000 C1FC 00000 001FE    83          MVC    0(2,R7),Z          a(j)=z;
+000110 47F0 C0E0            000E2    84          B      E70                goto e70
+000114 4188 0001            00001    85 E80      LA     R8,1(R8)           m=m+1
+000118 06A0                          86 E90      BCTR   R10,0              i=i-1
+00011A 12AA                          87          LTR    R10,R10            if i=0
+00011C 4780 C15C            0015E    88          BZ     ZERO               then goto zero
+000120 181A                          89          LR     R1,R10             i
+000122 8B10 0001            00001    90          SLA    R1,1               i*2
+000126 4821 C1C2            001C4    91          LH     R2,A-2(R1)         r2=a(i)
+00012A 183A                          92          LR     R3,R10             i
+00012C 1B32                          93          SR     R3,R2              -a(i)
+00012E 1A39                          94          AR     R3,R9              p=i-a(i)+n
+000130 184A                          95          LR     R4,R10             i
+000132 1A42                          96          AR     R4,R2              +a(i)
+
+                                                                                                                            PAGE 3
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000134 0640                          97          BCTR   R4,0               q=i+a(i)-1
+000136 181A                          98          LR     R1,R10             i
+000138 8B10 0001            00001    99          SLA    R1,1               i*2
+00013C 48B1 C1DE            001E0   100          LH     R11,S-2(R1)        j=s(i)
+000140 4100 0000            00000   101          LA     R0,0               r0=0
+000144 1813                         102          LR     R1,R3              p
+000146 8B10 0001            00001   103          SLA    R1,1               p*2
+00014A 4001 C216            00218   104          STH    R0,U-2(R1)         u(p)=0
+00014E 1814                         105          LR     R1,R4              q
+000150 1A15                         106          AR     R1,R5              q+r
+000152 8B10 0001            00001   107          SLA    R1,1               (q+r)*2
+000156 4001 C216            00218   108          STH    R0,U-2(R1)         u(q+r)=0
+00015A 47F0 C0D6            000D8   109          B      E60                goto e60
+00015E 5290 C200            00202   110 ZERO     XDECO  R9,PG+0            edit N
+000162 5280 C20C            0020E   111          XDECO  R8,PG+12           edit M
+                                    112          PUT    OUTDCB,PG          print buffer
+                                                 $                                                                                  
+                                        Error # 118, INVALID OP-CODE
+000166 4199 0001            00001   113          LA     R9,1(R9)           n=n+1
+00016A 47F0 C02C            0002E   114          B      LOOPN              loop do n
+                                    115 ELOOPN   CLOSE  (OUTDCB)           close output
+                                                 $                                                                                  
+                                        Error # 118, INVALID OP-CODE
+00016E 58D0 C17E            00180   116          L      R13,SAVEA+4        previous save area addrs
+                                    117          RETURN (14,12),RC=0       return to caller with rc=0
+                                                 $                                                                                  
+                                        Error # 118, INVALID OP-CODE
+                                    118          LTORG
+000178 00000000                                  =F'0'
+00017C                              119 SAVEA    DS     18F                save area for chaining
+                                    120 OUTDCB   DCB    DSORG=PS,MACRF=PM,DDNAME=OUTDD  use OUTDD in jcl
+                                                 $                                                                                  
+                                        Error # 118, INVALID OP-CODE
+00000E                              121 LL       EQU    14                 ll<=16
+0001C4 000E                         122 L        DC     AL2(LL)            input value
+0001C6                              123 A        DS     (LL)H
+0001E2                              124 S        DS     (LL)H
+0001FE                              125 Z        DS     H
+000200                              126 Y        DS     H
+000202                              127 PG       DS     CL24               buffer
+                                    128 U        DC     (4*LL-2)H'0'       stack
+                                                        $                                                                           
+                                        Error # 135, SYNTAX
+000000                              129 R0       EQU    0
+000001                              130 R1       EQU    1
+000002                              131 R2       EQU    2
+000003                              132 R3       EQU    3
+000004                              133 R4       EQU    4
+000005                              134 R5       EQU    5
+000006                              135 R6       EQU    6
+000007                              136 R7       EQU    7
+000008                              137 R8       EQU    8
+000009                              138 R9       EQU    9
+
+                                                                                                                            PAGE 4
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00000A                              139 R10      EQU    10
+00000B                              140 R11      EQU    11
+00000C                              141 R12      EQU    12
+00000D                              142 R13      EQU    13
+00000E                              143 R14      EQU    14
+00000F                              144 R15      EQU    15
+                                    145          END    NQUEENS
+
+***   9 STATEMENTS FLAGGED - 0 WARNINGS, 9 ERRORS
+
+

@@ -1,0 +1,113 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                             
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                      1 *****************************
+                                      2 *                           *
+                                      3 * THIS PROGRAM CALCULATES   *
+                                      4 * THE GROSS WEIGHT OF A SET *
+                                      5 * OF TRUCKS.                *
+                                      6 *                           *
+                                      7 * INPUT:                    *
+                                      8 *   EACH TRUCK'S WEIGHT IS  *
+                                      9 *   READ FROM THE CONSOLE.  *
+                                     10 *                           *
+                                     11 * THE TOTAL IS PRINTED UPON *
+                                     12 * INPUT END OF FILE.        *
+                                     13 *                           *
+                                     14 *****************************
+
+000000                               16 WEIGHT   CSECT
+000000                               17          USING *,15
+000000 E020 F0D6 001F 000D6          18          XPRNT PROMPT,31          ISSUE PROMPT
+000006 E000 F05F 004F 0005F          19          XREAD CARD,79            READ THE FIRST INPUT LINE
+00000C 4740 F048            00048    20          BC    B'0100',EXIT       EXIT ON EOF
+000010 5330 F05F            0005F    21          XDECI 3,CARD             GET TRUCK'S WEIGHT
+000014 4710 F048            00048    22          BC    B'0001',EXIT       EXIT ON INVALID DATA
+000018 E020 F04A 0014 0004A          23 MORE     XPRNT EPRTMSG,20         ECHO-PRINT HEADER
+00001E E020 F05E 004F 0005E          24          XPRNT CARD-1,79          ECHO PRINT THE INPUT LINE
+000024 E020 F0D6 001F 000D6          25          XPRNT PROMPT,31          ISSUE PROMPT
+00002A E000 F05F 004F 0005F          26          XREAD CARD,79            READ NEXT INPUT LINE
+000030 4740 F03E            0003E    27          BC    B'0100',PRINT      GO PRINT RESULTS ON EOF
+000034 5340 F05F            0005F    28          XDECI 4,CARD             GET INPUT TRUCK'S WEIGHT
+000038 1A34                          29          AR    3,4                MAINTAIN RUNNING TOTAL
+00003A 47F0 F018            00018    30          BC    B'1111',MORE       GO GET ANOTHER TRUCK'S WEIGHT
+00003E 5230 F0C8            000C8    31 PRINT    XDECO 3,PLINE+26         PLACE SUM IN PRINT LINE
+000042 E020 F0AE 0028 000AE          32          XPRNT PLINE,40           PRINT THE TOTAL
+000048 07FE                          33 EXIT     BCR   B'1111',14         EXIT PROGRAM
+
+00004A F0C9D5D7E4E340C5              35 EPRTMSG  DC    CL20'0INPUT ECHOED:'
+00005E 40                            36          DC    C' '               CARD CARRIAGE CONTROL
+00005F                               37 CARD     DS    CL79               STORAGE FOR INPUT LINE
+0000AE F040E3C8C540E3D6              38 PLINE    DC    CL40'0 THE TOTAL GROSS WEIGHT ='
+0000D6 F0C5D5E3C5D940E3              39 PROMPT   DC    CL31'0ENTER THE NEXT TRUCK''S WEIGHT.'
+                                     40          END WEIGHT
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+500                                                                           
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+190                                                                           
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+39290                                                                         
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+1100                                                                          
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+2919                                                                          
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+9                                                                             
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+0                                                                             
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+                                                                              
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+                                                                              
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+                                                                              
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+                                                                              
+
+ENTER THE NEXT TRUCK'S WEIGHT.
+
+INPUT ECHOED:      
+                                                        

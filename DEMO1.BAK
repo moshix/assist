@@ -1,0 +1,20 @@
+***********************************
+*			*
+* THIS PROGRAM IS THE FIRST EXAM- *
+* PLE IN THE OVERBEEK/SINGLETARY	*
+* BOOK.			*
+*			*
+***********************************
+ADD2	CSECT
+	L	1,16(,15)
+	L	2,20(15)
+	AR	1,2
+	ST	1,24(15)
+	BCR	B'1111',14
+	DC	F'4'
+	DC	F'6'
+	DS	F
+	END	ADD2
+$ENTRY
+
+

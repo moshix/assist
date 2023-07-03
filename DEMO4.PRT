@@ -1,0 +1,193 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                             
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                      1 *************************************
+                                      2 *                                   *
+                                      3 *  THIS PROGRAM READS INPUT CARDS,  *
+                                      4 *  EACH WITH A PART # AND QUANTITY  *
+                                      5 *  IN STOCK.  IT THEN READS         *
+                                      6 *  REQUESTS CONTAINING PART         *
+                                      7 *  NUMBERS AND PRINTS A REPORT      *
+                                      8 *  OF HOW MANY UNITS ARE IN STOCK.  *
+                                      9 *                                   *
+                                     10 *  THE INPUT SET MUST CONTAIN:      *
+                                     11 *                                   *
+                                     12 *       -  A MASTER SET WHERE EACH  *
+                                     13 *           LINE CONTAINS 2 NON-    *
+                                     14 *           NEGATIVE NUMBERS        *
+                                     15 *           SEPARATED BY ONE OR     *
+                                     16 *          MORE BLANKS:             *
+                                     17 *               -  A PART NUMBER    *
+                                     18 *               -  STOCK QUANTITY OF*
+                                     19 *                  THE PART         *
+                                     20 *       -  A LINE WITH A -1         *
+                                     21 *       -  REQUEST LINES:           *
+                                     22 *               -  EACH CONTAINING  *
+                                     23 *                 ONE PART NUMBER   *
+                                     24 *                                   *
+                                     25 *************************************
+
+000000                               27 STOCK    CSECT
+000000                               28 R0       EQU   0
+000001                               29 R1       EQU   1
+000002                               30 R2       EQU   2
+000003                               31 R3       EQU   3
+000004                               32 R4       EQU   4
+000005                               33 R5       EQU   5
+000006                               34 R6       EQU   6
+000007                               35 R7       EQU   7
+000008                               36 R8       EQU   8
+000009                               37 R9       EQU   9
+00000A                               38 R10      EQU   10
+00000B                               39 R11      EQU   11
+00000C                               40 R12      EQU   12
+00000D                               41 R13      EQU   13
+00000E                               42 R14      EQU   14
+00000F                               43 R15      EQU   15
+
+000000                               45          USING *,R15
+                                     46 *
+                                     47 **<1>**  INITIALIZE POINTER TO TABLE
+                                     48 *        AND ITEMS TO 25.
+                                     49 *
+000000 4130 F19C            0019C    50          LA    R3,TABLE
+000004 4140 0019            00019    51          LA    R4,25
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                     52 *
+                                     53 *
+                                     54 **<2>**  READ A CARD, BRANCH ON ERROR
+                                     55 *
+000008 E000 F14B 004F 0014B          56 ANOTHER  XREAD CARD,79
+00000E 4740 F090            00090    57          BC    B'0100',INP$ERR
+                                     58 *
+                                     59 *
+                                     60 **<3>**  GET A PART #, BRANCH AT END
+                                     61 *
+000012 5350 F14B            0014B    62          XDECI R5,CARD
+000016 5950 F0D0            000D0    63          C     R5,=F'-1'
+00001A 4780 F032            00032    64          BC    B'1000',DISPLAY    GO DISPLAY THE PAGE HEADER AT END
+                                     65 *
+                                     66 *
+                                     67 **<4>**  BUILD A TABLE ENTRY
+                                     68 *
+00001E 5053 0000            00000    69          ST    R5,0(R3)           MOVE PART # INTO TABLE
+000022 5351 0000            00000    70          XDECI R5,0(R1)           GET THE QUANTITY
+000026 5053 0004            00004    71          ST    R5,4(R3)            AND PUT INTO TABLE
+00002A 4133 0008            00008    72          LA    R3,8(R3)           POINT TO NEXT TABLE ENTRY
+                                     73 *
+                                     74 *
+                                     75 **<5>**  GO GET ANOTHER ENTRY
+                                     76 *
+00002E 4640 F008            00008    77          BCT   R4,ANOTHER
+                                     78 *
+                                     79 *
+                                     80 **<6>**  DISPLAY THE REPORT PAGE HEADER
+                                     81 *
+000032 E020 F124 0025 00124          82 DISPLAY  XPRNT =C'1        INVENTORY INFORMATION REPORT',37
+000038 E020 F0D8 0026 000D8          83          XPRNT =C'0       ITEM #          UNITS IN STOCK',38
+00003E E020 F0FE 0026 000FE          84          XPRNT =C'        ======          ==============',38
+                                     85 *
+                                     86 *
+                                     87 **<7>**  SET UP SEARCH LOOP CONSTANTS
+000044 1873                          88          LR    R7,R3
+000046 5B70 F0D4            000D4    89          S     R7,=F'8'           POINT TO LAST TABLE ENTRY
+00004A 4160 0008            00008    90          LA    R6,8               SET INDEX INCREMENT
+                                     91 *
+                                     92 *
+                                     93 **<8>**  READ REQUEST CARDS UNTIL EOF
+                                     94 *
+00004E E000 F14B 004F 0014B          95 MORE     XREAD CARD,79
+000054 4740 F096            00096    96          BC    B'0100',EXIT
+000058 5380 F14B            0014B    97          XDECI R8,CARD            GET REQUEST PART NUMBER
+                                     98 *
+                                     99 *
+                                    100 **<8>**  INITIALIZE TABLE LOOKUP
+                                    101 *
+00005C 4130 F19C            0019C   102          LA    R3,TABLE
+                                    103 *
+                                    104 *
+
+                                                                                                                            PAGE 3
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    105 **<9>**  SEARCH TABLE FOR REQUEST
+                                    106 *
+000060 5983 0000            00000   107 SEARCH   C     R8,0(R3)
+000064 4780 F07A            0007A   108          BC    B'1000',FOUND
+                                    109 *
+                                    110 *
+                                    111 **<10>** ADVANCE PIONTER & SEARCH MORE
+                                    112 *
+000068 8736 F060            00060   113          BXLE  R3,R6,SEARCH
+                                    114 *
+                                    115 *
+                                    116 **<11>** PRINT ERROR MSG WHEN NOT FOUND
+                                    117 *
+00006C 5280 F285            00285   118 NOTFOUND XDECO R8,ELINE+1
+000070 E020 F284 0038 00284         119          XPRNT ELINE,56
+000076 47F0 F04E            0004E   120          BC    B'1111',MORE
+                                    121 *
+                                    122 *
+                                    123 **<12>** PRINT A REPORT LINE
+                                    124 *
+00007A 5280 F265            00265   125 FOUND    XDECO R8,PLINE+1
+00007E 5883 0004            00004   126          L     R8,4(R3)
+000082 5280 F278            00278   127          XDECO R8,PLINE+20
+000086 E020 F264 0020 00264         128          XPRNT PLINE,32
+00008C 47F0 F04E            0004E   129          BC    B'1111',MORE       GO GET NEXT REQUEST
+                                    130 *
+                                    131 *
+                                    132 **<13>** PRINT INPUT ERROR MSG
+                                    133 *
+000090 E020 F0A0 0031 000A0         134 INP$ERR  XPRNT =C'1  IMPROPER ALIGNMENT OF DATA CARDS WAS DETECTED',49
+                                    135 *
+                                    136 *
+                                    137 **<14>** EXIT PROGRAM
+000096 E020 F149 0001 00149         138 EXIT     XPRNT =C'1',1            SET PRINTER TO CLEAN PAGE
+00009C 07FE                         139          BCR   B'1111',R14
+                                    140          LTORG
+0000A0 F14040C9D4D7D9D6                          =C'1  IMPROPER ALIGNMENT OF DATA CARDS WAS DETECTED'
+0000D0 FFFFFFFF                                  =F'-1'
+0000D4 00000008                                  =F'8'
+0000D8 F040404040404040                          =C'0       ITEM #          UNITS IN STOCK'
+0000FE 4040404040404040                          =C'        ======          =============='
+000124 F140404040404040                          =C'1        INVENTORY INFORMATION REPORT'
+000149 F1                                        =C'1'
+
+00014A F0                           142          DC    C'0'
+00014B                              143 CARD     DS    CL80
+00019C                              144          DS    0F
+00019C DEADDEADDEADDEAD             145 TABLE    DC    50XL4'DEADDEAD'
+000264 F040404040404040             146 PLINE    DC    CL32'0 '
+000284 F040404040404040             147 ELINE    DC    CL20'0 '
+000298 D5D640C5D5E3D9E8             148          DC    CL36'NO ENTRY FOUND. PROBABLE USER ERROR'
+                                    149          END STOCK
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+        INVENTORY INFORMATION REPORT
+
+       ITEM #          UNITS IN STOCK
+       ======          ==============
+
+        1277                177
+
+         100       NO ENTRY FOUND. PROBABLE USER ERROR 
+
+        1644                  5
+
+         572                 28
+
+
+*** EXECUTION COMPLETED ***
+

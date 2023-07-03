@@ -1,0 +1,315 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                             
+
+
+EXAMPLE1 - BUILD AND PRINT A TABLE                                                                                          PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                      2 ****************************
+                                      3 *                          *
+                                      4 * THIS EXAMPLE BUILDS TWO  *
+                                      5 * TABLES, PRINTS THEM, AND *
+                                      6 * MERGES THEM INTO ONE. IT *
+                                      7 * THEN PRINTS THE MERGED   *
+                                      8 * TABLE.                   *
+                                      9 *                          *
+                                     10 * INPUT IS TAKEN FROM THE  *
+                                     11 * DISK FILE NAMED          *
+                                     12 * "DEMO5.DAT".             *
+                                     13 *                          *
+                                     14 ****************************
+000000                               15 R0       EQU   0
+000001                               16 R1       EQU   1
+000002                               17 R2       EQU   2
+000003                               18 R3       EQU   3
+000004                               19 R4       EQU   4
+000005                               20 R5       EQU   5
+000006                               21 R6       EQU   6
+000007                               22 R7       EQU   7
+000008                               23 R8       EQU   8
+000009                               24 R9       EQU   9
+00000A                               25 R10      EQU   10
+00000B                               26 R11      EQU   11
+00000C                               27 R12      EQU   12
+00000D                               28 R13      EQU   13
+00000E                               29 R14      EQU   14
+00000F                               30 R15      EQU   15
+000000                               31 EX1      CSECT
+000000                               32          USING *,R15
+000000 90EC D00C            0000C    33          STM   R14,R12,12(R13)
+000004 45EF 0050            00050    34          BAL   R14,80(R15)
+000008                               35          DS    18F
+000050 50DE 0004            00004    36          ST    R13,4(R14)
+000054 50ED 0008            00008    37          ST    R14,8(R13)
+000058 18DE                          38          LR    R13,R14
+                                     39 *
+                                     40 *
+                                     41 *** BUILD TABLE #1
+00005A 4120 F0B0            000B0    42          LA    R2,TABLE1
+00005E 45E0 F150            00150    43          BAL   R14,BUILDTAB
+000062 5030 F0A8            000A8    44          ST    R3,ENDTAB1
+                                     45 *
+                                     46 *
+                                     47 *** PRINT TABLE # 1
+000066 45E0 F21C            0021C    48          BAL   R14,PRINTTAB
+                                     49 *
+                                     50 *
+                                     51 *** BUILD TABLE # 2
+00006A 4120 F0D8            000D8    52          LA    R2,TABLE2
+
+EXAMPLE1 - BUILD AND PRINT A TABLE                                                                                          PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00006E 45E0 F150            00150    53          BAL   R14,BUILDTAB
+000072 5030 F0AC            000AC    54          ST    R3,ENDTAB2
+                                     55 *
+                                     56 *
+                                     57 *** PRINT TABLE # 2
+000076 45E0 F21C            0021C    58          BAL   R14,PRINTTAB
+                                     59 *
+                                     60 *
+                                     61 *** MERGE THE TWO TABLES
+00007A 4120 F0B0            000B0    62          LA    R2,TABLE1
+00007E 4130 F0D8            000D8    63          LA    R3,TABLE2
+000082 4140 F100            00100    64          LA    R4,TABLE3
+000086 5850 F0A8            000A8    65          L     R5,ENDTAB1
+00008A 5860 F0AC            000AC    66          L     R6,ENDTAB2
+00008E 45E0 F2D4            002D4    67          BAL   R14,MERGETAB
+                                     68 *
+                                     69 *
+                                     70 *** PRINT THE NEW TABLE
+000092 4120 F100            00100    71          LA    R2,TABLE3
+000096 1837                          72          LR    R3,R7
+000098 45E0 F21C            0021C    73          BAL   R14,PRINTTAB
+                                     74 *
+                                     75 *
+                                     76 *** EXIT TO THE SYSTEM
+00009C 58DD 0004            00004    77          L     R13,4(R13)
+0000A0 98EC D00C            0000C    78          LM    R14,R12,12(R13)
+0000A4 07FE                          79          BR    R14
+                                     80 *
+                                     81          LTORG
+                                     82 *** STORAGE
+0000A8                               83 ENDTAB1  DS    F
+0000AC                               84 ENDTAB2  DS    F
+0000B0                               85 TABLE1   DS    10F
+0000D8                               86 TABLE2   DS    10F
+000100                               87 TABLE3   DS    20F
+
+BUILDTAB ROUTINE                                                                                                            PAGE 3
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000150                               89 BUILDTAB DS    0H
+000150 9042 F1E0            001E0    90          STM   R4,R2,READSAVE
+                                     91 *
+                                     92 *
+                                     93 *** GET A NUMBER
+000154 E000 F190 0050 00190          94          XREAD CARD,80
+00015A 5340 F190            00190    95          XDECI R4,CARD
+                                     96 *
+                                     97 *
+                                     98 *** LAST ONE?
+00015E 5940 F188            00188    99 READLOOP C     R4,=F'999999'
+000162 4780 F17C            0017C   100          BE    SETLAST
+                                    101 *
+                                    102 *
+                                    103 *** PUT THE NUMBER IN THE TABLE
+000166 5042 0000            00000   104          ST    R4,0(R2)
+00016A 4122 0004            00004   105          LA    R2,4(R2)
+                                    106 *
+                                    107 *
+                                    108 *** GET THE NEXT NUMBER
+00016E E000 F190 0050 00190         109          XREAD CARD,80
+000174 5340 F190            00190   110          XDECI R4,CARD
+000178 47F0 F15E            0015E   111          B     READLOOP
+                                    112 *
+                                    113 *
+                                    114 *** SET POINTER TO END OF TABLE
+00017C 1832                         115 SETLAST  LR    R3,R2
+00017E 5B30 F18C            0018C   116          S     R3,=F'4'
+                                    117 *
+                                    118 *
+                                    119 *** RETURN TO CALLER
+000182 9842 F1E0            001E0   120          LM    R4,R2,READSAVE
+000186 07FE                         121          BR    R14
+                                    122 *
+                                    123          LTORG
+000188 000F423F                                  =F'999999'
+00018C 00000004                                  =F'4'
+                                    124 *
+                                    125 *
+                                    126 *** BUILDTAB STORAGE
+000190                              127 CARD     DS    CL80
+0001E0                              128 READSAVE DS    15F
+
+PRINTTAB ROUTINE                                                                                                            PAGE 4
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00021C                              130 PRINTTAB DS    0H
+00021C 900F F294            00294   131          STM   R0,R15,PRNTSAVE
+                                    132 *
+                                    133 *
+                                    134 *** PRINT A HEADING
+000220 E020 F258 0017 00258         135          XPRNT =C'1*** START OF TABLE ***',23
+000226 E020 F26F 0001 0026F         136          XPRNT =C' ',1
+                                    137 *
+                                    138 *
+                                    139 *** CHECK FOR END OF TABLE
+00022C 1923                         140 PRINTLP  CR    R2,R3
+00022E 4720 F248            00248   141          BH    PRINTEND
+                                    142 *
+                                    143 *
+                                    144 *** PRINT ONE ENTRY
+000232 5802 0000            00000   145          L     R0,0(R2)
+000236 5200 F286            00286   146          XDECO R0,PLINE
+00023A E020 F285 000D 00285         147          XPRNT PLINE-1,13
+                                    148 *
+                                    149 *
+                                    150 *** INCREMENT THE TABLE POINTER
+000240 4122 0004            00004   151          LA    R2,4(R2)
+000244 47F0 F22C            0022C   152          B     PRINTLP
+                                    153 *
+                                    154 *
+                                    155 **** SAY GOOD BYE AND EXIT
+000248                              156 PRINTEND DS    0H
+000248 E020 F270 0015 00270         157          XPRNT =C'0*** END OF TABLE ***',21
+00024E 980F F294            00294   158          LM    R0,R15,PRNTSAVE
+000252 07FE                         159          BR    R14
+                                    160 *
+                                    161          LTORG
+000258 F15C5C5C40E2E3C1                          =C'1*** START OF TABLE ***'
+00026F 40                                        =C' '
+000270 F05C5C5C40C5D5C4                          =C'0*** END OF TABLE ***'
+                                    162 *
+                                    163 *
+                                    164 *** PRINTTAB STORAGE
+000285 40                           165          DC    C' '
+000286                              166 PLINE    DS    CL12
+000294                              167 PRNTSAVE DS    16F
+
+MERGETAB ROUTINE                                                                                                            PAGE 5
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+0002D4                              169 MERGETAB DS    0H
+0002D4 9086 F35C            0035C   170          STM   R8,R6,MERGESAV
+                                    171 *
+                                    172 *
+                                    173 *** END OF BOTH TABLES?
+0002D8 1925                         174 DO1      CR    R2,R5
+0002DA 47D0 F2E4            002E4   175          BNH   IF2
+0002DE 1936                         176          CR    R3,R6
+0002E0 4720 F34C            0034C   177          BH    ENDDO1
+                                    178 *
+                                    179 *
+                                    180 *** TABLE 1 EMPTY?
+0002E4 1925                         181 IF2      CR    R2,R5
+0002E6 47D0 F2FE            002FE   182          BNH   IF3
+                                    183 *
+                                    184 *
+                                    185 *** MOVE NUMBER FROM TABLE 2
+0002EA 5803 0000            00000   186          L     R0,0(R3)
+0002EE 5004 0000            00000   187          ST    R0,0(R4)
+0002F2 4133 0004            00004   188          LA    R3,4(R3)
+0002F6 4144 0004            00004   189          LA    R4,4(R4)
+0002FA 47F0 F348            00348   190          B     ENDIF2
+                                    191 *
+                                    192 *
+                                    193 *** TABLE 2 EMPTY?
+0002FE 1936                         194 IF3      CR    R3,R6
+000300 47D0 F318            00318   195          BNH   IF4
+                                    196 *
+                                    197 *
+                                    198 *** MOVE NUMBER FROM TABLE 1
+000304 5802 0000            00000   199          L     R0,0(R2)
+000308 5004 0000            00000   200          ST    R0,0(R4)
+00030C 4122 0004            00004   201          LA    R2,4(R2)
+000310 4144 0004            00004   202          LA    R4,4(R4)
+000314 47F0 F348            00348   203          B     ENDIF3
+                                    204 *
+                                    205 *
+                                    206 *** TABLE 1 HAS A LOW VALUE?
+000318 5802 0000            00000   207 IF4      L     R0,0(R2)
+00031C 5903 0000            00000   208          C     R0,0(R3)
+000320 47B0 F338            00338   209          BNL   ELSE4
+                                    210 *
+                                    211 *
+                                    212 *** MOVE NUMBER FROM TABLE 1
+000324 5802 0000            00000   213          L     R0,0(R2)
+000328 5004 0000            00000   214          ST    R0,0(R4)
+00032C 4122 0004            00004   215          LA    R2,4(R2)
+000330 4144 0004            00004   216          LA    R4,4(R4)
+000334 47F0 F348            00348   217          B     ENDIF4
+                                    218 *
+                                    219 *
+                                    220 *** MOVE NUMBER FROM TABLE 2
+000338 5803 0000            00000   221 ELSE4    L     R0,0(R3)
+
+MERGETAB ROUTINE                                                                                                            PAGE 6
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00033C 5004 0000            00000   222          ST    R0,0(R4)
+000340 4133 0004            00004   223          LA    R3,4(R3)
+000344 4144 0004            00004   224          LA    R4,4(R4)
+                                    225 *
+000348                              226 ENDIF4   DS    0H
+000348                              227 ENDIF3   DS    0H
+000348                              228 ENDIF2   DS    0H
+000348 47F0 F2D8            002D8   229          B     DO1
+                                    230 *
+00034C                              231 ENDDO1   DS    0H
+                                    232 *
+                                    233 *
+                                    234 **** RETURN THE END OF THE TABLE
+00034C 1874                         235          LR    R7,R4
+00034E 5B70 F358            00358   236          S     R7,=F'4'
+                                    237 *
+000352 9886 F35C            0035C   238          LM    R8,R6,MERGESAV
+000356 07FE                         239          BR    R14
+                                    240 *
+                                    241          LTORG
+000358 00000004                                  =F'4'
+                                    242 *
+                                    243 *
+                                    244 *** MERGETAB STORAGE
+00035C                              245 MERGESAV DS    15F
+                                    246 *
+                                    247          END
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+*** START OF TABLE ***
+
+         123
+         345
+         567
+         777
+
+*** END OF TABLE ***
+*** START OF TABLE ***
+
+         222
+         333
+         444
+         555
+         666
+
+*** END OF TABLE ***
+*** START OF TABLE ***
+
+         123
+         222
+         333
+         345
+         444
+         555
+         567
+         666
+         777
+
+*** END OF TABLE ***
+
+*** EXECUTION COMPLETED ***
+

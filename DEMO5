@@ -1,0 +1,249 @@
+         TITLE 'EXAMPLE1 - BUILD AND PRINT A TABLE'
+****************************
+*                          *
+* THIS EXAMPLE BUILDS TWO  *
+* TABLES, PRINTS THEM, AND *
+* MERGES THEM INTO ONE. IT *
+* THEN PRINTS THE MERGED   *
+* TABLE.                   *
+*                          *
+* INPUT IS TAKEN FROM THE  *
+* DISK FILE NAMED          *
+* "DEMO5.DAT".             *
+*                          *
+****************************
+R0       EQU   0
+R1       EQU   1
+R2       EQU   2
+R3       EQU   3
+R4       EQU   4
+R5       EQU   5
+R6       EQU   6
+R7       EQU   7
+R8       EQU   8
+R9       EQU   9
+R10      EQU   10
+R11      EQU   11
+R12      EQU   12
+R13      EQU   13
+R14      EQU   14
+R15      EQU   15
+EX1      CSECT
+         USING *,R15
+         STM   R14,R12,12(R13)
+         BAL   R14,80(R15)
+         DS    18F
+         ST    R13,4(R14)
+         ST    R14,8(R13)
+         LR    R13,R14
+*
+*
+*** BUILD TABLE #1
+         LA    R2,TABLE1
+         BAL   R14,BUILDTAB
+         ST    R3,ENDTAB1
+*
+*
+*** PRINT TABLE # 1
+         BAL   R14,PRINTTAB
+*
+*
+*** BUILD TABLE # 2
+         LA    R2,TABLE2
+         BAL   R14,BUILDTAB
+         ST    R3,ENDTAB2
+* 
+*
+*** PRINT TABLE # 2
+         BAL   R14,PRINTTAB
+*
+*
+*** MERGE THE TWO TABLES
+         LA    R2,TABLE1
+         LA    R3,TABLE2
+         LA    R4,TABLE3
+Q          L     R5,ENDTAB1
+         L     R6,ENDTAB2
+         BAL   R14,MERGETAB
+*
+*
+*** PRINT THE NEW TABLE
+         LA    R2,TABLE3
+         LR    R3,R7
+         BAL   R14,PRINTTAB
+*
+*
+*** EXIT TO THE SYSTEM
+         L     R13,4(R13)
+         LM    R14,R12,12(R13)
+         BR    R14
+*
+         LTORG
+*** STORAGE
+ENDTAB1  DS    F
+ENDTAB2  DS    F
+TABLE1   DS    10F
+TABLE2   DS    10F
+TABLE3   DS    20F
+         TITLE 'BUILDTAB ROUTINE'
+BUILDTAB DS    0H
+         STM   R4,R2,READSAVE
+*
+*
+*** GET A NUMBER
+         XREAD CARD,80
+         XDECI R4,CARD
+*
+*
+*** LAST ONE?
+READLOOP C     R4,=F'999999'
+         BE    SETLAST
+*
+*
+*** PUT THE NUMBER IN THE TABLE
+         ST    R4,0(R2)
+         LA    R2,4(R2)
+*
+*
+*** GET THE NEXT NUMBER
+         XREAD CARD,80
+         XDECI R4,CARD
+         B     READLOOP
+*
+*
+*** SET POINTER TO END OF TABLE
+SETLAST  LR    R3,R2
+         S     R3,=F'4'
+*
+*
+*** RETURN TO CALLER
+         LM    R4,R2,READSAVE
+         BR    R14
+*
+         LTORG
+*
+*
+*** BUILDTAB STORAGE
+CARD     DS    CL80
+READSAVE DS    15F
+         TITLE 'PRINTTAB ROUTINE'
+PRINTTAB DS    0H
+         STM   R0,R15,PRNTSAVE
+*
+*
+*** PRINT A HEADING
+         XPRNT =C'1*** START OF TABLE ***',23
+         XPRNT =C' ',1
+*
+*
+*** CHECK FOR END OF TABLE
+PRINTLP  CR    R2,R3
+         BH    PRINTEND
+*
+*
+*** PRINT ONE ENTRY
+         L     R0,0(R2)
+         XDECO R0,PLINE
+         XPRNT PLINE-1,13
+*
+*
+*** INCREMENT THE TABLE POINTER
+         LA    R2,4(R2)
+         B     PRINTLP
+*
+*
+**** SAY GOOD BYE AND EXIT
+PRINTEND DS    0H
+         XPRNT =C'0*** END OF TABLE ***',21
+         LM    R0,R15,PRNTSAVE
+         BR    R14
+*
+         LTORG
+*
+*
+*** PRINTTAB STORAGE
+         DC    C' '
+PLINE    DS    CL12
+PRNTSAVE DS    16F
+         TITLE 'MERGETAB ROUTINE'
+MERGETAB DS    0H
+         STM   R8,R6,MERGESAV
+*
+*
+*** END OF BOTH TABLES?
+DO1      CR    R2,R5
+         BNH   IF2
+         CR    R3,R6
+         BH    ENDDO1
+*
+*
+*** TABLE 1 EMPTY?
+IF2      CR    R2,R5
+         BNH   IF3
+*
+*
+*** MOVE NUMBER FROM TABLE 2
+         L     R0,0(R3)
+         ST    R0,0(R4)
+         LA    R3,4(R3)
+         LA    R4,4(R4)
+         B     ENDIF2
+*
+*
+*** TABLE 2 EMPTY?
+IF3      CR    R3,R6
+         BNH   IF4
+*
+*
+*** MOVE NUMBER FROM TABLE 1
+         L     R0,0(R2)
+         ST    R0,0(R4)
+         LA    R2,4(R2)
+         LA    R4,4(R4)
+         B     ENDIF3
+*
+*
+*** TABLE 1 HAS A LOW VALUE?
+IF4      L     R0,0(R2)
+         C     R0,0(R3)
+         BNL   ELSE4
+*
+*
+*** MOVE NUMBER FROM TABLE 1
+         L     R0,0(R2)
+         ST    R0,0(R4)
+         LA    R2,4(R2)
+         LA    R4,4(R4)
+         B     ENDIF4
+*
+*
+*** MOVE NUMBER FROM TABLE 2
+ELSE4    L     R0,0(R3)
+         ST    R0,0(R4)
+         LA    R3,4(R3)
+         LA    R4,4(R4)
+*
+ENDIF4   DS    0H
+ENDIF3   DS    0H
+ENDIF2   DS    0H
+         B     DO1
+*
+ENDDO1   DS    0H
+*
+*
+**** RETURN THE END OF THE TABLE
+         LR    R7,R4
+         S     R7,=F'4'
+*
+         LM    R8,R6,MERGESAV
+         BR    R14
+*
+         LTORG
+*
+*
+*** MERGETAB STORAGE
+MERGESAV DS    15F
+*
+         END
+$ENTRY   DEMO5.DAT
+
