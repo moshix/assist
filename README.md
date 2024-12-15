@@ -9,5 +9,5 @@ I am providing this repo for software preservation purposes. The rights were own
 
 ![ScreenShot](/Screen%20Shot%202023-07-04%20at%2012.44.04%20AM.png?raw=true "Assist Assembler")
 
-July 2023, Milan/Italy
+January 2025
 
